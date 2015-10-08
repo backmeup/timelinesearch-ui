@@ -8,12 +8,23 @@ var Model = function() {
 
       fullTextCorpus = new WordList(),
 
-      load = function(url, callback) {
+      loadJSON = function(json) {
+        // TODO implement
+      },
+
+      loadFromURL = function(url, callback) {
         jQuery.getJSON(url, function(response) {
-          data = processSearchResponse(response.hits.hits);
+          data = processResponse(response.hits.hits);
           if (callback)
             callback();
         });
+      },
+
+      load = function(json_or_url, opt_callback) {
+        if (jQuery.type(json_or_url) === 'string')
+          loadFromURL(json_or_url, opt_callback);
+        else
+          loadJSON(json_or_url);
       },
 
       /** A hack to 'beautify' THEMIS search result issues **/
@@ -51,7 +62,7 @@ var Model = function() {
       },
 
       /** Helper to create a normalized result array from raw API response **/
-      processSearchResponse = function(hits) {
+      processResponse = function(hits) {
         var results = (function() {
               var unfilteredResults = hits.map(function(hit, index) {
                     var s = hit._source;
