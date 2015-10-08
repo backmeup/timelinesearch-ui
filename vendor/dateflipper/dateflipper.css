@@ -1,0 +1,17 @@
+.dateflipper-container {
+  position:relative;
+  overflow:hidden;
+  height:100%;
+}
+
+.dateflipper-col {
+  text-align:center;
+  position:relative;
+  display:inline-block;
+  vertical-align:top;
+}
+
+.dateflipper-col p {
+  margin:10px 0 0 0;
+  padding:20px 30px;
+}

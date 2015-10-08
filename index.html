@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Themis Geo/Temp Browser</title>
+    <link rel="stylesheet" href="index.css">
+
+    <link rel="stylesheet" href="vendor/simplehistogram/simplehistogram.css">
+    <script type="text/javascript" src="vendor/simplehistogram/simplehistogram.js"></script>
+
+    <link rel="stylesheet" href="vendor/dateflipper/dateflipper.css">
+    <script type="text/javascript" src="vendor/dateflipper/dateflipper.js"></script>
+
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+    <script type="text/javascript" src="vendor/leaflet/leaflet.js"></script>
+
+    <script type="text/javascript" src="vendor/jquery-1.9.0.min.js"></script>
+
+    <script type="text/javascript" src="src/app.js"></script>
+    <script type="text/javascript" src="src/hasEvents.js"></script>
+    <script type="text/javascript" src="src/map.js"></script>
+    <script type="text/javascript" src="src/model.js"></script>
+    <script type="text/javascript" src="src/resultList.js"></script>
+    <script type="text/javascript" src="src/tfidf.js"></script>
+    <script type="text/javascript" src="src/timeHistogram.js"></script>
+
+    <style>
+      html, body {
+        font-family:"Trebuchet MS", Helvetica, sans-serif;
+        font-size:14px;
+        line-height:140%;
+        margin:0;
+        padding:0;
+        background-color:#fdfdfd;
+        height:100%;
+      }
+
+      #container {
+        position:relative;
+        margin:10px;
+      }
+
+      #resultList{
+        position:relative;
+        margin-left:330px;
+        min-height:600px;
+        border:1px solid #efefef;
+      }
+
+      #sidebar {
+        position:absolute;
+        top:30px;
+        left:10px;
+        bottom:10px;
+        width:320px;
+      }
+
+      #map {
+        position:absolute;
+        top:0;
+        width:320px;
+        height:260px;
+        border:1px solid #efefef;
+      }
+
+      #histogram {
+        position:absolute;
+        top:270px;
+        bottom:0;
+        width:320px;
+        border:1px solid #efefef;
+      }
+
+      .sticky {
+        position:fixed !important;
+        top:10px !important;
+        left:10px !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form>
+      <input type="text"></input>
+    </form>
+
+    <div id="container">
+      <div id="resultList"></div>
+    </div>
+
+    <div id="sidebar">
+      <div id="map"></div>
+      <div id="histogram"></div>
+    </div>
+
+    <script type="text/javascript">
+      jQuery(document).ready(function() {
+        var searchUI = new SpatioTemporalUI({
+          resultList:    document.getElementById('resultList'),
+          map:           document.getElementById('map'),
+          timeHistogram: document.getElementById('histogram')
+        });
+        // searchUI.update('*');
+
+        // Make the sidebar sticky
+        var win = jQuery(window),
+            el = jQuery('#sidebar'),
+            top = el.offset().top;
+
+        win.scroll(function() {
+          el.toggleClass('sticky', win.scrollTop() > top);
+        });
+
+        // Wire up the the text input field
+        jQuery('form').submit(function(e) {
+          e.preventDefault();
+          searchUI.update(jQuery('input').val());
+        });
+      });
+    </script>
+  </body>
+</html>

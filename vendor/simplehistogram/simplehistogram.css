@@ -1,0 +1,46 @@
+div.histogram.column {
+  box-sizing:border-box;
+  border:1px solid transparent;
+  position:relative;
+  cursor:pointer;
+}
+
+div.histogram.column.landscape {
+  height:100%;
+  display:inline-block;
+  padding:0 2px;
+}
+
+div.histogram.column.portrait {
+  width:100%;
+  padding:2px 0;
+}
+
+div.histogram.column:hover .bar {
+  border:1px solid #909090;
+  background-color:#c2c2c2;
+}
+
+div.histogram.column .bar {
+  position:absolute;
+  border:1px solid #ccc;
+  background-color:#efefef;
+  box-sizing:border-box;
+}
+
+div.histogram.column.landscape .bar {
+  bottom:0;
+  left:1px;
+  right:1px;
+}
+
+div.histogram.column.portrait .bar {
+  top:1px;
+  bottom:0;
+}
+
+div.histogram.column.portrait.right .bar {
+  top:1px;
+  bottom:0;
+  right:0;
+}
