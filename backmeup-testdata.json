@@ -1,0 +1,42 @@
+{
+  "offsetStart": 0,
+  "offsetEnd": 100,
+  "progress": 0,
+  "searchQuery": "*",
+  "byJob": [],
+  "byOwner": [],
+  "bySource": [],
+  "byTag": [],
+  "byType": [],
+  "files": [
+    {
+      "datasink": "My Storage Sink",
+      "datasource": "org.backmeup.filegenerator",
+      "downloadUrl": "http://themis-storage01.backmeup.at:8080/backmeup-storage-service/download/###TOKEN###/BMU_filegenerator_7643395_09_10_2015_08_43/file1.jpg",
+      "fileId": "b09dbceb-85f1-4a21-b5b2-9147e50a540b",
+      "isSharing": false,
+      "jobName": "test01 Execution",
+      "ownerId": "57",
+      "thumbnailUrl": "http://themis-storage01.backmeup.at:8080/backmeup-storage-service/download/###TOKEN###/BMU_filegenerator_7643395_09_10_2015_08_43/thumbs/1444373006092_file1.jpg_thumb.jpg",
+      "timestamp": 1444373006180,
+      "title": "file1.jpg",
+      "type": "image",
+      "metadata": {},
+      "properties": {}
+    },{
+      "datasink": "My Storage Sink",
+      "datasource": "org.backmeup.filegenerator",
+      "downloadUrl": "http://themis-storage01.backmeup.at:8080/backmeup-storage-service/download/###TOKEN###/BMU_filegenerator_7643395_09_10_2015_08_43/file0.txt",
+      "fileId": "16402a47-bd85-418c-b0a4-85f09a0f43ae",
+      "isSharing": false,
+      "jobName": "test01 Execution",
+      "ownerId": "57",
+      "preview": "... Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea tak ...",
+      "timestamp": 1444373006180,
+      "title": "file0.txt",
+      "type": "text",
+      "metadata": {},
+      "properties": {}
+    }
+  ]
+}
