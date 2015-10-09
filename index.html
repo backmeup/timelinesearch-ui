@@ -115,7 +115,6 @@
           map:           document.getElementById('map'),
           timeHistogram: document.getElementById('histogram')
         });
-        // searchUI.update('*');
 
         // Make the sidebar sticky
         var win = jQuery(window),
@@ -129,7 +128,16 @@
         // Wire up the the text input field
         jQuery('form').submit(function(e) {
           e.preventDefault();
-          searchUI.update(jQuery('input').val());
+
+          // Test scenario 1: update the UI with a query - the UI will pass the query
+          // to ES by itself
+          // searchUI.update(jQuery('input').val());
+
+          // Test scenario 2: fetch the data via THEMIS (or, in this case, from the dummy
+          // test data), and update the UI with the data directly
+          jQuery.getJSON('backmeup-testdata.json', function(data) {
+            searchUI.update(data)
+          });
         });
       });
     </script>

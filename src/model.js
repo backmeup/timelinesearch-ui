@@ -1,6 +1,8 @@
-var Model = function() {
+var Model = function(props) {
 
-  var UNWANTED_RECORDS =
+  var ES_BASE_URL = 'http://localhost:9200/backmeup/_search?size=1500&q=',
+
+      UNWANTED_RECORDS =
         [ 'album.html', 'albuminfo.xml', 'photo.jpg', 'commentinfo.xml',
           'groups.html', 'groupinfo.xml', 'postinfo.xml', 'user.xml' ],
 
@@ -8,23 +10,28 @@ var Model = function() {
 
       fullTextCorpus = new WordList(),
 
-      loadJSON = function(json) {
-        // TODO implement
+      buildFromJSON = function(json) {
+        data = processThemisResponse(json.files);
       },
 
-      loadFromURL = function(url, callback) {
+      buildFromURL = function(url, callback) {
         jQuery.getJSON(url, function(response) {
-          data = processResponse(response.hits.hits);
+          data = processESResponse(response.hits.hits);
           if (callback)
             callback();
         });
       },
 
-      load = function(json_or_url, opt_callback) {
-        if (jQuery.type(json_or_url) === 'string')
-          loadFromURL(json_or_url, opt_callback);
-        else
-          loadJSON(json_or_url);
+      load = function(json_or_query, opt_callback) {
+        if (jQuery.type(json_or_query) === 'string') {
+          console.log('Searching ElasticSearch for "' + json_or_query + '"');
+          buildFromURL(ES_BASE_URL + encodeURIComponent(json_or_query), opt_callback);
+        } else {
+          console.log('Normalizing THEMIS search results');
+          buildFromJSON(json_or_query);
+          if (opt_callback)
+            opt_callback();
+        }
       },
 
       /** A hack to 'beautify' THEMIS search result issues **/
@@ -61,95 +68,123 @@ var Model = function() {
         });
       },
 
-      /** Helper to create a normalized result array from raw API response **/
-      processResponse = function(hits) {
-        var results = (function() {
-              var unfilteredResults = hits.map(function(hit, index) {
-                    var s = hit._source;
+      normalizeESResults = function(hits) {
+        return hits.map(function(hit, index) {
+          var s = hit._source;
 
-                    if (s.fulltext)
-                      fullTextCorpus.append(s.fulltext);
+          if (s.fulltext)
+            fullTextCorpus.append(s.fulltext);
 
-                    return {
-                      key: index,
-                      title: s.filename,
-                      createdAt: (s.document_creation_date) ? s.document_creation_date : s.backup_at,
-                      createdBy: s.authorName,
-                      thumbnail: s.thumbnail_path,
-                      dataSource: s.backup_source_plugin_id.replace(/\./g, '-'),
-                      contentType: s['Content-Type'].replace(/\.|\/|\+/g, '-'),
-                      lat: parseFloat(s.location_latitude),
-                      lon: parseFloat(s.location_longitude),
-                      path: s.path,
-                      _source: s
-                    };
-                  });
+          return {
+            key: index,
+            title: s.filename,
+            createdAt: (s.document_creation_date) ? s.document_creation_date : s.backup_at,
+            createdBy: s.authorName,
+            thumbnail: s.thumbnail_path,
+            fulltext: s.fulltext,
+            dataSource: s.backup_source_plugin_id.replace(/\./g, '-'),
+            contentType: s['Content-Type'].replace(/\.|\/|\+/g, '-'),
+            lat: parseFloat(s.location_latitude),
+            lon: parseFloat(s.location_longitude),
+            path: s.path,
+            _source: s
+          };
+        });
+      },
 
-              return filterResults(unfilteredResults);
-            })(),
+      normalizeThemisResults = function(files) {
+        return files.map(function(hit, index) {
 
-            // Grouped by date
-            resultsByDate = (function() {
-              var grouped = {}, sorted = [], days;
+          if (hit.preview)
+            fullTextCorpus.append(hit.preview);
 
-              // Put them into a hash map first...
-              jQuery.each(results, function(idx, result) {
-                var dayCreated = (result.createdAt) - (result.createdAt % 86400000);
-                if (dayCreated in grouped) {
-                  grouped[dayCreated].push(result);
-                } else {
-                  grouped[dayCreated] = [ result ];
-                }
-              });
+          return {
+            key: index,
+            title: hit.title,
+            createdAt: hit.timestamp,
+            createdBy: hit.ownerId,
+            thumbnail: (hit.thumbnailUrl) ?
+              hit.thumbnailUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
+              false,
+            fulltext: hit.preview,
+            dataSource: hit.dataSource,
+            contentType: hit.type,
+            _source: hit
+          };
+        });
+      },
 
-              // ... then create a sorted array with { date: ..., results: } pairs
-              days = Object.keys(grouped);
-              days.sort(function(a,b) { return b - a; });
-              sorted = days.map(function(day) {
-                return { date: parseInt(day), results: grouped[day] };
-              });
+      groupByDate = function(results) {
+        var grouped = {}, sorted = [], days;
 
-              return sorted;
-            })(),
+        // Put them into a hash map first...
+        jQuery.each(results, function(idx, result) {
+          var dayCreated = (result.createdAt) - (result.createdAt % 86400000);
+          if (dayCreated in grouped) {
+            grouped[dayCreated].push(result);
+          } else {
+            grouped[dayCreated] = [ result ];
+          }
+        });
 
-            // Grouped by coordinate
-            resultsByCoordinate = (function() {
-              var grouped = {}, asArray = [], coords;
+        // ... then create a sorted array with { date: ..., results: } pairs
+        days = Object.keys(grouped);
+        days.sort(function(a,b) { return b - a; });
+        sorted = days.map(function(day) {
+          return { date: parseInt(day), results: grouped[day] };
+        });
 
-              // Put them into a hash map first...
-              jQuery.each(results, function(idx, result) {
-                var coordHash = (result.lat && result.lon) ? result.lat + ',' + result.lon : false;
-                if (coordHash) {
-                  if (coordHash in grouped)
-                    grouped[coordHash].push(result);
-                  else
-                    grouped[coordHash] = [ result ];
-                }
-              });
+        return sorted;
+      },
 
-              // ... then create an with { lat: ..., lon: ..., results: } triples
-              coords = Object.keys(grouped);
-              asArray = coords.map(function(coord) {
-                var latLon = coord.split(','),
-                    results = grouped[coord];
+      groupByCoordinate = function(results) {
+        var grouped = {}, asArray = [], coords;
 
-                // Sort results for this coordinate by time
-                results.sort(function(a,b) { return b.createdAt - a.createdAt; });
+        // Put them into a hash map first...
+        jQuery.each(results, function(idx, result) {
+          var coordHash = (result.lat && result.lon) ? result.lat + ',' + result.lon : false;
+          if (coordHash) {
+            if (coordHash in grouped)
+              grouped[coordHash].push(result);
+            else
+              grouped[coordHash] = [ result ];
+          }
+        });
 
-                return {
-                  lat: parseFloat(latLon[0]),
-                  lon: parseFloat(latLon[1]),
-                  results: results
-                };
-              });
+        // ... then create an with { lat: ..., lon: ..., results: } triples
+        coords = Object.keys(grouped);
+        asArray = coords.map(function(coord) {
+          var latLon = coord.split(','),
+              results = grouped[coord];
 
-              return asArray;
-            })();
+          // Sort results for this coordinate by time
+          results.sort(function(a,b) { return b.createdAt - a.createdAt; });
 
+          return {
+            lat: parseFloat(latLon[0]),
+            lon: parseFloat(latLon[1]),
+            results: results
+          };
+        });
+
+        return asArray;
+      },
+
+      processESResponse = function(hits) {
+        var filteredAndNormalized = filterResults(normalizeESResults(hits));
         return {
-          results: results,
-          resultsByDate: resultsByDate,
-          resultsByCoordinate: resultsByCoordinate
+          results: filteredAndNormalized,
+          resultsByDate: groupByDate(filteredAndNormalized),
+          resultsByCoordinate: groupByCoordinate(filteredAndNormalized)
+        };
+      },
+
+      processThemisResponse = function(files) {
+        var normalized = normalizeThemisResults(files);
+        return {
+          results: normalized,
+          resultsByDate: groupByDate(normalized),
+          resultsByCoordinate: groupByCoordinate(normalized)
         };
       },
 
@@ -158,7 +193,7 @@ var Model = function() {
       },
 
       getKeywords = function(result) {
-        var text = result._source.fulltext;
+        var text = result.fulltext;
 
         if (text)
           return TFIDF.compute(fullTextCorpus, new WordList(text), 3, 0.45);

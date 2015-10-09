@@ -1,8 +1,6 @@
 var SpatioTemporalUI = function(props)  {
 
-  var BASE_URL = 'http://localhost:9200/backmeup/_search?size=1500&q=',
-
-      model = new Model(),
+  var model = new Model({ token: props.token }),
 
       resultListContainer = jQuery(props.resultList),
       resultList = new ResultList(resultListContainer, model),
@@ -22,10 +20,8 @@ var SpatioTemporalUI = function(props)  {
 
       dateFlipperDisplayTimer,
 
-      update = function(query) {
-        console.log('Searching for "' + query + '"');
-        console.log(BASE_URL + encodeURIComponent(query));
-        model.load(BASE_URL + encodeURIComponent(query), function() {
+      update = function(json_or_query) {
+        model.load(json_or_query, function() {
           map.render();
           resultList.render();
           timeHistogram.render();
