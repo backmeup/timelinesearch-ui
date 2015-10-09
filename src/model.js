@@ -101,7 +101,7 @@ var Model = function(props) {
           return {
             key: index,
             title: hit.title,
-            createdAt: hit.timestamp,
+            createdAt: hit.timeStamp,
             createdBy: hit.ownerId,
             thumbnail: (hit.thumbnailUrl) ?
               hit.thumbnailUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
