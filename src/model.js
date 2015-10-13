@@ -101,7 +101,9 @@ var Model = function(props) {
           return {
             key: index,
             title: hit.title,
-            createdAt: hit.timeStamp,
+            createdAt: (hit.metadata.document_creation_date) ?
+              parseInt(hit.metadata.document_creation_date) :
+              hit.timeStamp,
             createdBy: hit.ownerId,
             thumbnail: (hit.thumbnailUrl) ?
               hit.thumbnailUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
@@ -180,11 +182,11 @@ var Model = function(props) {
       },
 
       processThemisResponse = function(files) {
-        var normalized = normalizeThemisResults(files);
+        var filteredAndNormalized = filterResults(normalizeThemisResults(files));
         return {
-          results: normalized,
-          resultsByDate: groupByDate(normalized),
-          resultsByCoordinate: groupByCoordinate(normalized)
+          results: filteredAndNormalized,
+          resultsByDate: groupByDate(filteredAndNormalized),
+          resultsByCoordinate: groupByCoordinate(filteredAndNormalized)
         };
       },
 
