@@ -109,8 +109,17 @@ var Model = function(props) {
               hit.thumbnailUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
               false,
             fulltext: hit.preview,
-            dataSource: hit.dataSource,
+            dataSource: hit.datasource,
             contentType: hit.type,
+            lat: (hit.metadata.location_latitude) ?
+              parseFloat(hit.metadata.location_latitude) :
+              false,
+            lon: (hit.metadata.location_longitude) ?
+              parseFloat(hit.metadata.location_longitude) :
+              false,
+            path: (hit.downloadUrl) ?
+              hit.downloadUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
+              false,
             _source: hit
           };
         });

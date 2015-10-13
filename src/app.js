@@ -30,6 +30,7 @@ var SpatioTemporalUI = function(props)  {
 
       onSelectOnList = function(result) {
         console.log(result);
+        window.open(result.path, '_blank');
       },
 
       onSelectOnMap = function(results) {
