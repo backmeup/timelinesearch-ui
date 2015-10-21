@@ -26,9 +26,11 @@ var SpatioTemporalUI = function(props)  {
       update = function(json_or_query) {
         model.load(json_or_query, function() {
           map.render();
-          filters.render();
           resultList.render();
           timeHistogram.render();
+
+          if (filters)
+            filters.render();
         });
       },
 
@@ -88,7 +90,10 @@ var SpatioTemporalUI = function(props)  {
   jQuery(document).scroll(onScroll);
 
   map.on('select', onSelectOnMap);
-  filters.on('change', onChangeFilters);
+
+  if (filters)
+    filters.on('change', onChangeFilters);
+
   timeHistogram.on('select', onSelectTimeRange);
   resultList.on('select', onSelectOnList);
 
