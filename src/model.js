@@ -8,7 +8,12 @@ var Model = function(props) {
 
       data = { results: [], resultsByDate: [], resultsByCoordinate: [] },
 
+      // For demo purposes - we're recording datatypes so we can use them to filter results
+      contentTypes = [],
+
       fullTextCorpus = new WordList(),
+
+      currentFilter = false,
 
       buildFromJSON = function(json) {
         data = processThemisResponse(json.files);
@@ -70,7 +75,11 @@ var Model = function(props) {
 
       normalizeESResults = function(hits) {
         return hits.map(function(hit, index) {
-          var s = hit._source;
+          var s = hit._source,
+              contentType = s['Content-Type'];
+
+          if (contentTypes.indexOf(contentType) === -1)
+            contentTypes.push(contentType);
 
           if (s.fulltext)
             fullTextCorpus.append(s.fulltext);
@@ -83,7 +92,7 @@ var Model = function(props) {
             thumbnail: s.thumbnail_path,
             fulltext: s.fulltext,
             dataSource: s.backup_source_plugin_id.replace(/\./g, '-'),
-            contentType: s['Content-Type'].replace(/\.|\/|\+/g, '-'),
+            contentType: contentType.replace(/\.|\/|\+/g, '-'),
             lat: parseFloat(s.location_latitude),
             lon: parseFloat(s.location_longitude),
             path: s.path,
@@ -94,6 +103,10 @@ var Model = function(props) {
 
       normalizeThemisResults = function(files) {
         return files.map(function(hit, index) {
+          var contentType = hit.type;
+
+          if (contentTypes.indexOf(contentType) === -1)
+            contentTypes.push(contentType);
 
           if (hit.preview)
             fullTextCorpus.append(hit.preview);
@@ -199,8 +212,17 @@ var Model = function(props) {
         };
       },
 
+      setFilter = function(filter) {
+        currentFilter = filter;
+      },
+
       getData = function(key) {
         return function() { return data[key]; };
+      },
+
+      // TODO for future use - for now, we just return content types
+      getFilterValues = function() {
+        return contentTypes;
       },
 
       getKeywords = function(result) {
@@ -248,6 +270,8 @@ var Model = function(props) {
   this.load = load;
   this.getFirstResultBefore = getFirstResultBefore;
   this.getResults = getData('results');
+  this.getFilterValues = getFilterValues;
+  this.setFilter = setFilter;
   this.getKeywords = getKeywords;
   this.getResultsByDate = getData('resultsByDate');
   this.getResultsByCoordinate = getData('resultsByCoordinate');

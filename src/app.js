@@ -11,6 +11,9 @@ var SpatioTemporalUI = function(props)  {
       mapContainer = jQuery(props.map),
       map = new Map(mapContainer, model, props.imagePath),
 
+      filtersContainer = (props.filters) ? jQuery(props.filters) : false,
+      filters = (filtersContainer) ? new FiltersPanel(filtersContainer, model) : false,
+
       dateFlipperContainer = (function() {
         var el = jQuery('<div id="dateflipper"></div>');
         resultListContainer.parent().append(el);
@@ -23,6 +26,7 @@ var SpatioTemporalUI = function(props)  {
       update = function(json_or_query) {
         model.load(json_or_query, function() {
           map.render();
+          filters.render();
           resultList.render();
           timeHistogram.render();
         });
@@ -37,6 +41,13 @@ var SpatioTemporalUI = function(props)  {
         resultList.highlight(results);
         if (results.length > 0)
           resultList.scrollTo(results[0]);
+      },
+
+      onChangeFilters = function(e) {
+        model.setFilter(e);
+        map.render();
+        resultList.render();
+        timeHistogram.render();
       },
 
       onSelectTimeRange = function(e) {
@@ -77,6 +88,7 @@ var SpatioTemporalUI = function(props)  {
   jQuery(document).scroll(onScroll);
 
   map.on('select', onSelectOnMap);
+  filters.on('change', onChangeFilters);
   timeHistogram.on('select', onSelectTimeRange);
   resultList.on('select', onSelectOnList);
 

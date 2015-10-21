@@ -17,6 +17,7 @@
     <script type="text/javascript" src="vendor/jquery-1.9.0.min.js"></script>
 
     <script type="text/javascript" src="src/app.js"></script>
+    <script type="text/javascript" src="src/filtersPanel.js"></script>
     <script type="text/javascript" src="src/hasEvents.js"></script>
     <script type="text/javascript" src="src/map.js"></script>
     <script type="text/javascript" src="src/model.js"></script>
@@ -63,9 +64,19 @@
         border:1px solid #efefef;
       }
 
-      #histogram {
+      #filters {
         position:absolute;
         top:270px;
+      }
+
+      #filters select {
+        height:20px;
+        width:320px;
+      }
+
+      #histogram {
+        position:absolute;
+        top:300px;
         bottom:0;
         width:320px;
         border:1px solid #efefef;
@@ -105,6 +116,7 @@
 
     <div id="sidebar">
       <div id="map"></div>
+      <div id="filters"></div>
       <div id="histogram"></div>
     </div>
 
@@ -113,6 +125,7 @@
         var searchUI = new SpatioTemporalUI({
           resultList:    document.getElementById('resultList'),
           map:           document.getElementById('map'),
+          filters:       document.getElementById('filters'),
           timeHistogram: document.getElementById('histogram')
         });
 
