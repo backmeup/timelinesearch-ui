@@ -6,22 +6,28 @@ var Model = function(props) {
         [ 'album.html', 'albuminfo.xml', 'photo.jpg', 'commentinfo.xml',
           'groups.html', 'groupinfo.xml', 'postinfo.xml', 'user.xml' ],
 
+      clone = function(obj) {
+        return jQuery.extend({}, obj);
+      },
+
       data = { results: [], resultsByDate: [], resultsByCoordinate: [] },
+
+      filteredData = clone(data),
 
       // For demo purposes - we're recording datatypes so we can use them to filter results
       contentTypes = [],
 
       fullTextCorpus = new WordList(),
 
-      currentFilter = false,
-
       buildFromJSON = function(json) {
         data = processThemisResponse(json.files);
+        filteredData = clone(data);
       },
 
       buildFromURL = function(url, callback) {
         jQuery.getJSON(url, function(response) {
           data = processESResponse(response.hits.hits);
+          filteredData = clone(data);
           if (callback)
             callback();
         });
@@ -213,11 +219,20 @@ var Model = function(props) {
       },
 
       setFilter = function(filter) {
-        currentFilter = filter;
+        // TODO apply filters
+        var filteredResults = jQuery.grep(data.results, function(result) {
+          return result.contentType === filter;
+        });
+
+        filteredData = {
+          results: filteredResults,
+          resultsByDate: groupByDate(filteredResults),
+          resultsByCoordinate: groupByCoordinate(filteredResults)
+        };
       },
 
       getData = function(key) {
-        return function() { return data[key]; };
+        return function() { return filteredData[key]; };
       },
 
       // TODO for future use - for now, we just return content types
