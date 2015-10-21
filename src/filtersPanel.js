@@ -26,4 +26,4 @@ var FiltersPanel = function(container, model) {
   HasEvents.apply(this);
 };
 
-FiltersPanel.prototype = Object.create(FiltersPanel.prototype);
+FiltersPanel.prototype = Object.create(HasEvents.prototype);

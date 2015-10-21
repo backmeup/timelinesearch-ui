@@ -71,4 +71,4 @@ var Map = function(container, model, opt_imagepath) {
   HasEvents.apply(this);
 };
 
-Map.prototype = Object.create(Map.prototype);
+Map.prototype = Object.create(HasEvents.prototype);
