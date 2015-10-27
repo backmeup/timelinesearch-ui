@@ -2,16 +2,34 @@ var FiltersPanel = function(container, model) {
 
   var self = this,
 
+      NAMES = {
+        'image': 'Image',
+        'text': 'Text File'
+      },
+
+      getScreenName = function(contentType) {
+        if (NAMES.hasOwnProperty(contentType))
+          return NAMES[contentType];
+        else
+          return contentType;
+      },
+
       createDropdown = function() {
-        var select = jQuery('<select></select>');
+        var select = jQuery(
+          '<select>' +
+            '<option selected="true" value=""></option>' +
+          '</select>');
 
         model.getFilterValues().map(function(val) {
-          select.append('<option>' + val + '</val>');
+          select.append('<option value="' + val + '">' + getScreenName(val) + '</val>');
         });
 
         select.change(function(e) {
-          var val = select.find('option:selected').text();
-          self.fireEvent('change', val);
+          var val = select.val();
+          if (val === '')
+            self.fireEvent('change');
+          else
+            self.fireEvent('change', val);
         });
 
         return select;

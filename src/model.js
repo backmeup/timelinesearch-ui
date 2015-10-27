@@ -219,16 +219,19 @@ var Model = function(props) {
       },
 
       setFilter = function(filter) {
-        // TODO apply filters
-        var filteredResults = jQuery.grep(data.results, function(result) {
-          return result.contentType === filter;
-        });
+        if (filter) {
+          var filteredResults = jQuery.grep(data.results, function(result) {
+            return result.contentType === filter;
+          });
 
-        filteredData = {
-          results: filteredResults,
-          resultsByDate: groupByDate(filteredResults),
-          resultsByCoordinate: groupByCoordinate(filteredResults)
-        };
+          filteredData = {
+            results: filteredResults,
+            resultsByDate: groupByDate(filteredResults),
+            resultsByCoordinate: groupByCoordinate(filteredResults)
+          };
+        } else {
+          filteredData = clone(data);
+        }
       },
 
       getData = function(key) {
