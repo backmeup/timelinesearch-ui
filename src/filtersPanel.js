@@ -4,7 +4,9 @@ var FiltersPanel = function(container, model) {
 
       NAMES = {
         'image': 'Image',
-        'text': 'Text File'
+        'text': 'Text File',
+        'html': 'HTML Document',
+        'other': 'Other...'
       },
 
       getScreenName = function(contentType) {
