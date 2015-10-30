@@ -1,6 +1,6 @@
 var SpatioTemporalUI = function(props)  {
 
-  var model = new Model({ token: props.token }),
+  var model = new Model({ token: props.token, ownerId: props.ownerId }),
 
       resultListContainer = jQuery(props.resultList),
       resultList = new ResultList(resultListContainer, model),

@@ -125,7 +125,8 @@ var Model = function(props) {
               hit.timeStamp,
             createdBy: hit.ownerId,
             thumbnail: (hit.thumbnailUrl) ?
-              hit.thumbnailUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
+              hit.thumbnailUrl
+                  .replace('###TOKEN###', encodeURIComponent(props.token) + '/' + hit.ownerId) :
               false,
             fulltext: hit.preview,
             dataSource: hit.datasource,
@@ -137,7 +138,7 @@ var Model = function(props) {
               parseFloat(hit.metadata.location_longitude) :
               false,
             path: (hit.downloadUrl) ?
-              hit.downloadUrl.replace('###TOKEN###', encodeURIComponent(props.token)) :
+              hit.downloadUrl.replace('###TOKEN###', encodeURIComponent(props.token) + '/' + hit.ownerId) :
               false,
             _source: hit
           };
